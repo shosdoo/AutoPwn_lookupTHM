@@ -10,4 +10,6 @@ Se necesitan Permisos root para poder ejecutarlo sin problemas y tener instalado
 * scp
 * python2
 
-Y tambien tener los diccionarios de wordlists y seclists
+Y tambien tener los diccionarios de wordlists y seclists en las siguientes rutas:
+/usr/share/SecLists/Usernames/Names/names.txt
+/usr/share/wordlists/fasttrack.txt

